@@ -66,7 +66,7 @@ obj_counts <- LayerData(obj, assay = "Xenium", layer = 'counts') #extracting raw
 azimuth_anns <- SingleR(test = obj_counts, 
                   ref = azimuth_bm_ref_counts, 
                   labels = azimuth_bm_ref$celltype.l2,
-                  de.method = 'wilcox') #crashed twice, submitting via a SLURM job
+                  de.method = 'wilcox') #recommendation: submit via a SLURM job if Rstudio is crashing
 
 #cleaning environment
 rm(intersect_genes)
