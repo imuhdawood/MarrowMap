@@ -1,4 +1,4 @@
-options(future.globals.maxSize = 8000 * 1024^3) #increase font size
+options(future.globals.maxSize = 8000 * 1024^3) #increase memory
 
 #load required libraries
 library(Seurat)
