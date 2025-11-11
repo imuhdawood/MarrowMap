@@ -1,3 +1,5 @@
+# process
+
 contains three sections:
 
 1) processing data in python along with all elements (CIF, H/E, Pathologist's Annotations, Bone, Megs, Fat)
