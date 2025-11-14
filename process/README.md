@@ -10,3 +10,4 @@ contains three sections:
 
 TODO: edit to make neater.
 ~ MG, last updated 11 november 2025
+Note from Ros 14 November 2025: lot more detailed, layman language
