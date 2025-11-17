@@ -24,7 +24,7 @@ args = parser.parse_args()
 
 def main():
     
-    round_grp = ['Xenium']
+    round_grp = ['Project Name']
     
     for r in range(len(round_grp)):
         
