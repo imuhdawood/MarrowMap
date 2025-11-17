@@ -292,7 +292,7 @@ def main():
     
     #------------------------------------------------------------------------
     
-    round_grp = ['Xenium'] # Specify the project/group name
+    round_grp = ['Project Name'] # Specify the project/group name
     
     denom, numer = 45.9749145507812, -19.0318393707275 # The configuration of normalization of the CIF score
     
