@@ -3,7 +3,6 @@ import os
 import pandas as pd
 import numpy as np
 import geopandas as gpd
-import pdb
 
 save_folder = 'path/to/output'
 data_folder = 'path/to/data'
