@@ -50,9 +50,7 @@ for i in range(1, 33): #going sample by sample
     obj = sdata.add_cif_abundance(zarr_path=None, sdata=obj, save=False, tile_path = "<add path for transformed CIF scores for 512 tile size>", tile_size = 512) #add 512 CIF scores to object
     
     obj = sdata.add_cif_abundance(zarr_path=None, sdata=obj, save=False, tile_path = "<add path for transformed CIF scores for 1024 tile size>", tile_size = 1024) #add 1024 CIF scores to object
-    
-    obj = sdata.add_poly_abundance(zarr_path=None, sdata=obj, save=False)
-    
+       
     obj = sdata.add_bone_segmentation(zarr_path=None, sdata=obj, save=False) #insert bone segmentation
     
     obj = sdata.add_adipocytes(zarr_path=None, sdata=obj, save=False) #insert fat segmentations
