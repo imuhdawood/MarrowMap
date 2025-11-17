@@ -265,7 +265,7 @@ class TileDataset(torch.utils.data.Dataset): # Get the tile set from whole slide
 
 def main():
     # initialize CUDA
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_id
     cudnn.benchmark = True
     
@@ -294,12 +294,7 @@ def main():
     
     round_grp = ['Xenium'] # Specify the project/group name
     
-    # The configuration of normalization of the CIF score -------------------
-    denom = 45.9749145507812
-    
-    numer = -19.0318393707275
-    
-    #------------------------------------------------------------------------
+    denom, numer = 45.9749145507812, -19.0318393707275 # The configuration of normalization of the CIF score
     
     for r in range(len(round_grp)):
         sub_path = '{}/{}'.format(args.result_folder,round_grp[r])
