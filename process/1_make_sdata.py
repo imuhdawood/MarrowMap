@@ -43,9 +43,9 @@ for i in range(1, 33): #going sample by sample
     
     obj = sdata.add_metadata(zarr_path=None, sdata=obj, save=False) #add metadata
     
-    obj = sdata.add_cell_annotations(zarr_path=None, sdata=obj, save=False, anno_path="<add path for cell annotations>", original_cluster_name="SCT_snn_res.0.3") #add cell annotations
+    obj = sdata.add_cell_annotations(zarr_path=None, sdata=obj, save=False, anno_path="<add path for cell annotations>", original_cluster_name="SCT_snn_res.0.3") #add cell annotations (this may be done retrospectively once seurat has been done and cell annotations have been prepared.)
     
-    obj = sdata.change_cell_annotations(zarr_path=None, sdata=obj, save=False, map_path = "<add path for revised cell annotations>", original_cluster_name="SCT_snn_res.0.3") #change cell annotations
+    obj = sdata.change_cell_annotations(zarr_path=None, sdata=obj, save=False, map_path = "<add path for revised cell annotations>", original_cluster_name="SCT_snn_res.0.3") #change cell annotations (this may be done retrospectively once seurat has been done and cell annotations have been prepared.)
     
     obj = sdata.add_cif_abundance(zarr_path=None, sdata=obj, save=False, tile_path = "<add path for transformed CIF scores for 512 tile size>", tile_size = 512) #add 512 CIF scores to object
     
