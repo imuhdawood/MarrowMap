@@ -126,8 +126,6 @@ def main():
                     cnt_idx+=1
                 coord_y_fix[sort_idx_y[iii+1+cnt_idx]] = base_v
             
-            # pdb.set_trace()
-            
             del sort_idx_x
             del sort_idx_y
             del sorted_x
@@ -216,7 +214,7 @@ def main():
                 
             overlap_score_txt.write('finished')
             overlap_score_txt.close()
-            savename = '{}/{}_lesswhite.ome.tif'.format(sub_path, imgname)
+            savename = '{}/{}_CIFmask.ome.tif'.format(sub_path, imgname)
             cv2.imwrite(savename, canvas1)
             print('{} has been done'.format(imgname))
             del canvas1
