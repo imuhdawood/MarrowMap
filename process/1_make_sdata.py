@@ -37,9 +37,6 @@ for i in range(1, 33): #going sample by sample
     
     obj = sdata.add_1024_cif_scores(zarr_path=None, sdata=obj, save=False, cif_path="<insert path containing input CIF scores>", save_transformed_cif = "<define a path to save the transformed CIF scores to>") #add CIF scores for 1024 tile size
     
-    obj = sdata.add_meg_phenotypes(zarr_path=None, sdata=obj, save=False) #add meg phenotypes to object
-    #note from Ros: remove this because it is not mentioned in the paper
-    
     obj = sdata.add_negative_annotations(zarr_path=None, sdata=obj, save=False) #add negative annotation information to object
     
     obj = sdata.add_positive_annotations(zarr_path=None, sdata=obj, save=False) #add positive annotation information to object
