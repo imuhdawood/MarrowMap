@@ -1,12 +1,12 @@
 # process
 
-contains three sections:
+This segment of the code contains three sections:
 
-1) processing data in python along with all elements (CIF, H/E, Pathologist's Annotations, Bone, Megs, Fat)
+1) processing data in Python along with all pre-processed elements (CIF, H/E, Pathologist's Annotations, Bone, Megs, Fat)
 
-2) converting all this to RDS object for use in Seurat
+2) converting the processed data to RDS objects for use in Seurat
 
-3) seurat workflow
+3) Seurat workflow
 
 TODO: edit to make neater.
 ~ MG, last updated 11 november 2025
