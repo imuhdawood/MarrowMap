@@ -5,7 +5,7 @@ library(openxlsx)
 savepath = "path/to/output"
 input_data_path = "path/to/input_data"
 theDatalist <- list.files(input_data_path)
-distmap_path = 'path/to/distance_map_cell
+distmap_path = 'path/to/distance_map'
 for (f in 1:length(theDatalist)){
   print(sprintf('%d out of %d : %s started',f,length(theDatalist),theDatalist[f]))
   Datapath = sprintf("%s/%s.", input_data_path, theDatalist[f])
