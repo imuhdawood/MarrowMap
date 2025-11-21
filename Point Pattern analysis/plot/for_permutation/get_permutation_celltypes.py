@@ -17,7 +17,7 @@ xl_list = []
 for file in os.listdir(xl_path):
     xl_list.append(file)
 
-with open('xeinum_celltypes.txt') as p:
+with open('celltypes.txt') as p:
     strings_p = p.readlines()
     cell_type_list = [string.split()[0] for string in strings_p]
     p.close()
