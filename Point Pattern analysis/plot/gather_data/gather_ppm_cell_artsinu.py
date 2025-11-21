@@ -2,11 +2,11 @@ import os
 import pandas as pd
 import numpy as np
 
-art_xl_path = 'C:/work/work/code/xenium_pipeline/ppm_results_anno3_stromal_art'
-sinu_xl_path = 'C:/work/work/code/xenium_pipeline/ppm_results_anno3_stromal_sinu'
+art_xl_path = 'path/to/data_arteriole'
+sinu_xl_path = 'path/to/data_sinusoid'
 
-art_savepath = 'C:/work/work/code/xenium_pipeline/gathered_ppm_downsampled_art_anno3_stromal'
-sinu_savepath = 'C:/work/work/code/xenium_pipeline/gathered_ppm_downsampled_sinu_anno3_stromal'
+art_savepath = 'path/to/output_arteriole'
+sinu_savepath = 'path/to/output_sinusoid'
 
 if not os.path.exists(art_savepath):
     os.makedirs(art_savepath)
@@ -72,10 +72,6 @@ for mp in mpn_list:
         x_data_cell_mf_art = np.zeros((len(cell_type_list),numb_mpn+1))
         x_data_cell_mf_art = x_data_cell_mf_art.astype(object)
         x_data_cell_mf_art[:,0] = cell_type_list
-    # elif mp =='PrePMF':
-    #     x_data_cell_prmf_art = np.zeros((len(cell_type_list),numb_mpn+1))
-    #     x_data_cell_prmf_art = x_data_cell_prmf_art.astype(object)
-    #     x_data_cell_prmf_art[:,0] = cell_type_list
 
 header = ['Cell Type']
 header_n = ['Cell Type']
@@ -133,7 +129,6 @@ for i in range(len(art_xl_list)):
         elif mpn_type == 'MF':
             x_data_cell_mf_art[type_idx,cnt_mf_art+1] = art_rank
         
-    
     if mpn_type == 'Normal':
         cnt_n_art+=1
     elif mpn_type == 'ET':
