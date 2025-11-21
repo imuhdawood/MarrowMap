@@ -4,7 +4,7 @@ import numpy as np
 
 structure = ['Bone','Fat','Arteriole','Sinusoid']
 
-xl_path = 'path/to/csv' # From get_metadata/get_structure_to_structure_dist.py
+xl_path = 'path/to/csv' # From ../../get_metadata/get_structure_to_structure_dist.py
 
 savepath = 'path/to/output'
 
