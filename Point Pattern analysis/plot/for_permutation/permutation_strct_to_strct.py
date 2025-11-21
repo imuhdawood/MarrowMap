@@ -7,9 +7,9 @@ from scipy.stats import combine_pvalues
 
 structure = ['Bone','Fat','Arteriole','Sinusoid']
 
-xl_path = 'xenium_pipeline/distance_strct_strct_patchbased_v2'
+xl_path = 'path/to/csv' # From gather_structure_dist_persample.py
 
-savepath = 'xenium_pipeline/permut_strct_strct_patchbased_v2_filtered'
+savepath = 'path/to/output'
 
 if not os.path.exists(savepath):
     os.makedirs(savepath)
@@ -23,7 +23,7 @@ for file in os.listdir(xl_path):
         xl_name_list.append(file.split('.')[0])
 
 
-with open('C:/work/work/code/xenium_pipeline/Correspond_MPN.txt') as p:
+with open('Correspond_MPN.txt') as p:
     strings_p = p.readlines()
     ID_list_temp = [string.split()[0] for string in strings_p]
     MPN_type_list_temp = [string.split()[1] for string in strings_p]
