@@ -7,7 +7,7 @@ from scipy.ndimage import distance_transform_edt as dm
 import cv2
 
 save_folder = 'path/to/output'
-coord_path = 'path/to/ppm'
+coord_path = 'path/to/ppm' # From get_metadata
 data_folder = 'path/to/data'
 
 bone_folder = '{}/bone'.format(save_folder)
