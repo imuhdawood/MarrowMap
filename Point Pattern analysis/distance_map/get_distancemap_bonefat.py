@@ -5,7 +5,6 @@ import numpy as np
 from PIL import Image, ImageDraw
 from scipy.ndimage import distance_transform_edt as dm
 import cv2
-import pdb
 
 save_folder = 'path/to/output'
 coord_path = 'path/to/ppm'
