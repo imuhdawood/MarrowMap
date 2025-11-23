@@ -73,7 +73,10 @@ class SDataInitalizer:
         self.tissue_poly = meta_dict["tissue_poly"]
         
     def initialise_sdata(self, save=True):
-        sdata = xenium(os.path.join(self.base_path, self.exp_name))
+        sdata = xenium(os.path.join(self.base_path, self.exp_name),
+                       #cells_boundaries=False, nucleus_boundaries=False,
+                       morphology_mip=False, morphology_focus=True
+                       )
         # Sdata could be customized here deleting the morphology_mip 
         del sdata.images["morphology_mip"]
         
