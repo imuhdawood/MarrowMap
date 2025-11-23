@@ -77,8 +77,6 @@ class SDataInitalizer:
                        #cells_boundaries=False, nucleus_boundaries=False,
                        morphology_mip=False, morphology_focus=True
                        )
-        # Sdata could be customized here deleting the morphology_mip 
-        del sdata.images["morphology_mip"]
         
         if save == True:
             sdata.write(os.path.join(self.save_folder, self.sample_key + ".zarr"), overwrite=True)
