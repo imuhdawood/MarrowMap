@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # ---------- CONFIG ----------
-input_dir = "xenium_pipeline/gathered_ppm_downsampled_cell_anno3_meg_stromal"
-out_dir = "xenium_pipeline/delta_cell_cell"
+input_dir = "path/to/data"
+out_dir = "path/to/output"
 MPN_SUBTYPES = ["Normal", "ET", "PV", "MF"]
 IGNORED_SHEETS = {"All"}
 os.makedirs(out_dir, exist_ok=True)
