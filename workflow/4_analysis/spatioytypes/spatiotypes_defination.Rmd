@@ -1,0 +1,220 @@
+---
+title: "Spatotypes Defination Heatmap"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_depth: 3
+    css: "style.css"
+    df_print: paged
+---
+
+The notebook reproduces stereotypes definition heatmap presented in the paper.
+
+```{r}
+source("../../../configuration.R")
+
+global_var <- new.env()
+sys.source("../../../utils/misc.R", envir = global_var)
+```
+
+```{r}
+data_df <- read.csv(STConfig$pth_spatiotypes_feat_label,
+                    header = TRUE, 
+                    stringsAsFactors = FALSE)
+data_df <- data_df[!is.na(data_df$ENVIRON) &
+                   data_df$ENVIRON != "", ]
+```
+
+```{r}
+data_df_agg <- aggregate(
+  x = data_df[, global_var$spatiotypes_band_descriptors, drop = FALSE],
+  by = list(ENVIRON = data_df[["ENVIRON"]]),
+  FUN = function(x) mean(x, na.rm = TRUE)
+)
+```
+
+```{r}
+# Importing configuration file
+if(!require("ComplexHeatmap")) install.packages("ComplexHeatmap", dependencies = TRUE)
+if(!require("circlize")) install.packages("circlize", dependencies = TRUE)
+
+library(dplyr)
+library(tidyr)
+library(RColorBrewer)
+library(ComplexHeatmap)
+library(circlize)
+```
+
+```{r heatmap, fig.width=11.43, fig.height=8.21}
+
+mat_agg <- as.matrix(data_df_agg[, -1])
+rownames(mat_agg) <- data_df_agg$ENVIRON
+transposed_mat <- t(mat_agg)
+
+annotation_col <- data.frame(
+  # Spatiotype : the last dash-split piece (e.g. "0", "1", "2")
+  Spatiotype = sapply(colnames(transposed_mat), function(x) {
+    x_std <- gsub("\\.", "-", x)
+    parts <- strsplit(x_std, "-")[[1]]
+    if (length(parts) > 1) {
+      tail(parts, 1)
+    } else {
+      NA  
+    }
+  }),
+  # Lineage: everything before the last dash
+  Lineage = sapply(colnames(transposed_mat), function(x) {
+    # Replace dots with dashes so "Osteo.MSC-2" becomes "Osteo-MSC-2"
+    x_std <- gsub("\\.", "-", x)
+    parts <- strsplit(x_std, "-")[[1]]
+    # If your final number is always the last element, spatiotype is all but the last
+    if (length(parts) > 1) {
+      paste(parts[-length(parts)], collapse="-")  # join back if more than 2 pieces
+    } else {
+      parts[1]  # fallback if there's no dash
+    }
+  })
+
+)
+
+# Checking that lineage column matches
+rownames(annotation_col) <- colnames(transposed_mat)
+
+annotation_row <- data.frame(
+  # Radius: number after the underscore
+  Radius = sapply(rownames(transposed_mat), function(x) {
+    parts <- strsplit(x, "_")[[1]]
+    tail(parts, 1)
+  }),
+  
+  # Lineage: test before underscore (e.g. "Erythroid" or "Osteo.MSC")
+  Lineage = sapply(rownames(transposed_mat), function(x) {
+    parts <- strsplit(x, "_")[[1]]
+    # If there's more than 2 parts, combine them except the last (radius)
+    if (length(parts) > 1) {
+      paste(parts[-length(parts)], collapse="_")
+    } else {
+      parts[1]
+    }
+  })
+)
+
+replacements <- c(
+  "Osteo.MSC"         = "Osteo-MSC",
+  "Granulocyte.mast"  = "Granulocyte/mast"
+)
+
+# 2) Replace values in annotation_row$Lineage
+annotation_row$Lineage <- ifelse(
+  annotation_row$Lineage %in% names(replacements),
+  replacements[annotation_row$Lineage],
+  annotation_row$Lineage
+)
+
+# Match row names
+rownames(annotation_row) <- rownames(transposed_mat)
+
+# Spatiotype
+sp_levels <- unique(annotation_col$Spatiotype)
+spatiotype_colors <- setNames(brewer.pal(n = length(sp_levels), "Set1"), sp_levels)
+
+# Radius
+r_levels <- unique(annotation_row$Radius)
+radius_colors <- setNames(brewer.pal(n = length(r_levels), "Set2"), r_levels)
+
+# Main heatmap color function (0..1)
+colour_palette <- colorRampPalette(brewer.pal(9, "YlGnBu"))(100)
+col_fun <- colorRamp2(seq(0, 1, length.out = length(colour_palette)), colour_palette)
+
+library(ComplexHeatmap)
+library(grid)
+
+hm <- Heatmap(
+  transposed_mat,
+  name = "Value",        
+  col  = col_fun,
+  
+  cluster_rows    = FALSE,
+  cluster_columns = FALSE,
+  show_row_names  = FALSE,
+  
+  row_title       = NULL,          # remove split block titles
+  row_labels      = rep("", nrow(transposed_mat)), # force no text if needed
+  
+  # Split by lineage to create row/column "gaps"
+  row_split    = annotation_row$Lineage,
+  column_split = annotation_col$Lineage,
+  
+  # Column annotation
+  top_annotation  = HeatmapAnnotation(
+    df = annotation_col[, c("Lineage","Spatiotype")],
+    col = list(
+      Spatiotype = spatiotype_colors,
+      Lineage    = global_var$lineage_colors
+    ),
+    show_annotation_name = FALSE,
+    annotation_legend_param = list(
+      Lineage    = list(show = FALSE),
+      Spatiotype = list(show = TRUE)
+    )
+  ),
+  
+  # Row annotation
+  left_annotation = rowAnnotation(
+    df = annotation_row[, c("Lineage", "Radius")],
+    col = list(
+      Radius  = radius_colors,
+      Lineage = global_var$lineage_colors
+    ),
+    show_annotation_name = FALSE,
+    annotation_legend_param = list(
+      Radius  = list(show = FALSE),
+      Lineage = list(show = FALSE)
+    )
+  ),
+  
+  # Turn off the built-in legends
+  show_heatmap_legend = FALSE,
+  
+  # Font adjustments
+  column_title    = "Spatial Cellular Composition of Spatiotypes",
+  column_title_gp = gpar(fontsize = 14, fontface = "bold"),
+  row_names_gp    = gpar(fontsize = 8),
+  column_names_gp = gpar(fontsize = 12, fontface = "bold"),
+  column_names_rot = 65
+)
+
+lgd_value <- Legend(
+  title     = "Value",
+  col_fun   = col_fun,
+  at        = c(0, 0.25, 0.75),
+  labels    = c("Low", "Medium", "High"),
+  direction = "vertical",
+  legend_width = unit(3, "cm"),
+  border    = FALSE,
+  title_gp  = gpar(fontface = "bold", fontsize = 10),
+  labels_gp = gpar(fontsize = 10)
+)
+
+complete_legend <- packLegend(
+  lgd_value,
+  direction = "vertical",
+  gap = unit(2, "mm")
+)
+
+grid.newpage()
+pushViewport(viewport(y = 0.1, height = 0.9, just = "bottom"))
+
+draw(
+  hm,
+  merge_legend = TRUE,
+  show_annotation_legend = FALSE,
+  annotation_legend_list = complete_legend,
+  annotation_legend_side = "right",
+  padding = unit(c(6, 4, 12, 4), "mm")  # Adjust padding if needed
+)
+
+#popViewport() 
+
+```

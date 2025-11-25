@@ -1,0 +1,245 @@
+---
+title: "ST Score Circos plots presented in the paper"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_depth: 3
+    css: "style.css"
+    df_print: paged
+---
+
+The notebook reproduces ITS level score and contribution of each feature toward ST score computed using Multiple Instance Learning based approach.
+
+```{r}
+plot_circos <- function(
+    df,
+    dkey,
+    diagnoses,
+    subtype_colors,
+    features_selected,
+    UNI_COLOR = FALSE,
+    legend_fontsize = 22
+){
+  
+  df <- df[df[[dkey]] %in% diagnoses, ]
+  
+  df_sub <- df
+  
+  sample_info <- df_sub[!duplicated(df_sub[[skey]]), ]
+  sample_info$diag_order <- ifelse(sample_info[[dkey]] == "Normal", 1, 2)
+  sample_info <- sample_info[order(sample_info$diag_order, sample_info[[skey]]), ]
+  
+  split <- factor(df_sub[[skey]], levels = sample_info[[skey]])
+  cell_widths <- rep(1, nrow(df_sub))
+  
+  # ITS level score from MIL model
+  mat3 <- df_sub[, "score", drop = FALSE]
+  
+  # Define color ranges
+  l_percentile <- 0.01; h_percentile <- 0.99
+  
+  if (UNI_COLOR){
+    abs_effects <- abs(df[, features_selected])
+    breaks2 <- quantile(abs_effects, probs = c(0.5, h_percentile), na.rm = TRUE)
+    col_fun2 <- colorRamp2(breaks2, c("white", "red"))
+    mat2 <- abs(df_sub[, features_selected, drop = FALSE])
+  }else{
+    
+    breaks2 <- quantile(df[, features_selected], probs = c(l_percentile,0.5,h_percentile), na.rm=TRUE)
+    col_fun2 <- colorRamp2(breaks2, c("blue","white","red"))
+    mat2 <- df_sub[, features_selected, drop = FALSE]
+  }
+  
+  
+  breaks3 <- quantile(df[, "score"], probs = c(l_percentile,0.5,h_percentile), na.rm=TRUE)
+  col_fun3 <- colorRamp2(breaks3, c("blue","white","red"))
+  
+  # --- Circos plotting ---------------------------------------------------------
+  circos.clear()
+  circos.par(
+    start.degree = 90,
+    gap.degree   = 2,              # very small gap between samples
+    track.margin = c(0.005, 0.005),
+    cell.padding = c(0, 0, 0, 0)
+  )
+  
+  # Outer heatmap: Shwoing effect per spatiotype on ST micro score
+  circos.heatmap(
+    mat2,
+    split = split,
+    col = col_fun2,
+    cell_width = cell_widths,
+    track.height = 0.70,             # bigger outer heatmap rows
+    show.sector.labels = FALSE,
+    bg.border = "black"
+  )
+  
+  # Spacer (tiny)
+  circos.trackPlotRegion(
+    factors = split,
+    track.index = 2,
+    track.height = 0.002,
+    ylim = c(0, 1),
+    bg.border = NA
+  )
+  
+  # ST micro score per ITS
+  circos.heatmap(
+    mat3,
+    split = split,
+    col = col_fun3,
+    cell_width = cell_widths,
+    track.height = 0.10,             # thinner inner ring
+    bg.border = "black"
+  )
+  
+  # Thin diagnosis ring (Normal vs ET, etc)
+  circos.trackPlotRegion(
+    factors = split,
+    track.index = 4,
+    track.height = 0.04,
+    ylim = c(0, 1),
+    bg.border = NA,
+    panel.fun = function(x,y) {
+      sector_name <- get.cell.meta.data("sector.index")
+      diag_val <- sample_info[sample_info[[skey]] == sector_name, dkey]
+      fill_color <- subtype_colors[as.character(diag_val)]
+      circos.rect(
+        xleft = get.cell.meta.data("xlim")[1],
+        ybottom = 0,
+        xright = get.cell.meta.data("xlim")[2],
+        ytop = 1,
+        col = fill_color,
+        border = NA
+      )
+    }
+  )
+  
+  lgd_mat2 <- Legend(
+    title = "Effect",
+    col_fun = col_fun2,
+    title_gp = gpar(fontsize = legend_fontsize, fontface = "bold"),
+    labels_gp = gpar(fontsize = legend_fontsize)
+  )
+  
+  lgd_mat3 <- Legend(
+    title = "ITS Score",
+    col_fun = col_fun3,
+    title_gp = gpar(fontsize = legend_fontsize, fontface = "bold"),
+    labels_gp = gpar(fontsize = legend_fontsize)
+  )
+  
+  
+  feature_legend <- Legend(
+    labels = features_selected,
+    title = "Top 12 Features",
+    ncol = 1,
+    legend_gp = gpar(fill = "white", col = "black"),
+    labels_gp = gpar(fontsize = legend_fontsize),       # increase label size
+    title_gp = gpar(fontsize = legend_fontsize, fontface = "bold")
+  )
+  
+  legends_combined <- packLegend(lgd_mat2, lgd_mat3, feature_legend)
+  
+  draw(
+    legends_combined,
+    x = unit(1,"npc") - unit(2,"mm"),
+    y = unit(1,"npc") - unit(2,"mm"),
+    just = c("right","top")
+  )
+
+}
+```
+
+```{r fig.width=30, fig.height=30, dpi=300}
+library(circlize)
+library(ComplexHeatmap)
+
+# Importing configuration file
+source("../../../configuration.R")
+
+merge_idx <- "index"
+skey <- "sample_key"
+dkey <- "diagnosis2"
+rkey <- "it_regions"
+
+UNI_COLOR = FALSE
+
+statsDf <- read.csv(STConfig$pth_spatiotypes_feat_label)
+itr_df  <- read.csv(STConfig$pth_its_score_file)
+features <- sort(grep("\\.[0-9]+", names(statsDf), value = TRUE))
+
+names(itr_df)[names(itr_df)=='it_id'] <- 'index'
+cols_to_drop <- c("fold_idx", "label")
+df_subset <- itr_df[, !(names(itr_df) %in% cols_to_drop)]
+df_grouped <- aggregate(. ~ index, data = df_subset, FUN = function(x) mean(x, na.rm = TRUE))
+
+statsDf$index <- paste(statsDf$sample_key, '_R', statsDf$it_regions, sep = "")
+names(statsDf)[names(statsDf) %in% features] <- paste0("feat_value_", features)
+
+merged_df <- merge(statsDf, df_grouped, by = merge_idx)
+
+# --- Feature selection -------------------------------------------------------
+variances <- sapply(merged_df[, features], function(x) if(is.numeric(x)) var(x, na.rm = TRUE) else NA)
+variances <- variances[!is.na(variances)]
+k <- 12
+top_k_indices <- order(variances, decreasing = TRUE)[1:k]
+features_selected <- names(variances)[top_k_indices]
+
+subtype_colors <- c(
+  "Normal" = "green",
+  "ET"     = "blue",
+  "PV"     = "red",
+  "MF"     = "orange",
+  "PrePMF" = "purple",
+  "MPN"    = "purple"
+)
+
+
+```
+
+## Showing Cohort level diversity and spatiotypes driving the prediction in Normal vs MF case
+
+```{r fig.width=30, fig.height=30, out.width="100%"}
+plot_circos(
+    merged_df,
+    dkey,
+    c("Normal","MF"),
+    subtype_colors,
+    features_selected,
+    UNI_COLOR = FALSE,
+    legend_fontsize = 26
+)
+
+```
+
+## Showing Cohort level diversity and spatiotypes driving the prediction in Normal vs ET cases
+
+```{r fig.width=30, fig.height=30, out.width="100%"}
+plot_circos(
+    merged_df,
+    dkey,
+    c("Normal","ET"),
+    subtype_colors,
+    features_selected,
+    UNI_COLOR = FALSE,
+    legend_fontsize = 26
+)
+
+```
+
+## Showing Cohort level diversity and spatiotypes driving the prediction in Normal vs PV cases
+
+```{r fig.width=30, fig.height=30, out.width="100%"}
+plot_circos(
+    merged_df,
+    dkey,
+    c("Normal","PV"),
+    subtype_colors,
+    features_selected,
+    UNI_COLOR = FALSE,
+    legend_fontsize = 26
+)
+
+```

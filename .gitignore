@@ -3,3 +3,11 @@
 test.ipynb
 test.py
 paper_code/
+data/*
+!data/README.md
+
+__pycache__/
+*.pyc
+
+test.py
+.Rproj.user/

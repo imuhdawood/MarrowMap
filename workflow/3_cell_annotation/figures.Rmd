@@ -1,0 +1,217 @@
+---
+title: "UMAPs and DEGs Heatmap"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_depth: 3
+    css: "style.css"
+    df_print: paged
+---
+
+```{r}
+library(rlang)
+#library(SingleR)
+library(Seurat)
+library(dplyr)
+library(tidyverse)
+
+options(future.globals.maxSize = 8000 * 1024^2)
+```
+
+```{r}
+source("../../configuration.R")
+```
+
+```{r}
+obj <- readRDS(STConfig$seurat_object_rds)
+df <- read.csv(STConfig$annotation_with_stromal, row.names = 1)
+head(df)
+```
+
+```{r}
+#merge in the singleR_stromal_w_megs into obj@metadata
+new_df = obj@meta.data
+
+# Check if all row names of df1 are in df2
+common_row_names <- intersect(rownames(new_df), rownames(df))
+#it's cos they are artefacts - don't worry about them!
+#subset new_df to the common row names
+new_df = new_df[common_row_names, ]
+
+#subset obj to the common row names
+obj = subset(obj, cell_id %in% common_row_names)
+
+```
+
+```{r}
+anno_df = read.csv(STConfig$pth_cell_annotations_final, row.names = 1)
+anno_df = anno_df[common_row_names, ]
+#subset to index and obj.anno_3_w_megs
+sub_anno_df = anno_df[, c("obj.anno_3_w_megs_w_stromal","obj.anno_3_w_megs", "obj.anno_1_w_megs", "obj.anno_5_w_megs")]
+head(sub_anno_df)
+```
+
+```{r}
+#merge in the singleR_stromal_w_megs into obj@metadata
+
+library(dplyr)
+
+df1 <- new_df %>% tibble::rownames_to_column(var = "Index")
+df2 <- sub_anno_df %>% tibble::rownames_to_column(var = "Index")
+
+# Merge by the Index column
+merged_df <- df1 %>%
+  left_join(df2, by = "Index") %>%
+  tibble::column_to_rownames(var = "Index")  # Restore row names
+
+# Check the result
+print(merged_df)
+```
+
+```{r}
+all(rownames(merged_df) == rownames(obj@meta.data))
+```
+
+```{r}
+obj$obj.anno_3_w_megs = merged_df$obj.anno_3_w_megs
+obj$obj.anno_3_w_megs_w_stromal = merged_df$obj.anno_3_w_megs_w_stromal
+obj$obj.anno_1_w_megs = merged_df$obj.anno_1_w_megs
+obj$obj.anno_5_w_megs = merged_df$obj.anno_5_w_megs
+```
+
+```{r}
+#downsample to 200 cells
+Idents(obj) = obj$sample_id
+#ds_obj = subset(obj, downsample = 10000)
+
+rm(df, df1, df2, new_df, merged_df)
+gc()
+```
+
+```{r}
+`%!in%` = Negate(`%in%`)
+
+unique(obj$obj.anno_5_w_megs)
+
+obj = subset(obj, subset = obj.anno_5_w_megs %!in% c("CD69"))
+```
+
+```{r fig.height=10, fig.width=20}
+Idents(obj) = obj$obj.anno_3_w_megs
+#now make a dimplot of each level and a proportion table
+image = DimPlot(obj, group.by = "obj.anno_3_w_megs", label = TRUE, repel = TRUE,size=0.05) +
+  NoLegend() +
+  theme(
+    axis.title = element_blank(),  # Removes axis titles
+    axis.text = element_blank(),   # Removes axis text
+    axis.ticks = element_blank(),  # Removes axis ticks
+    axis.line = element_blank(),   # Removes axis lines
+    panel.grid = element_blank()   # Removes grid lines if present
+  ) +
+  ggtitle("")
+
+image
+```
+
+```{r}
+Idents(obj) = obj$obj.anno_3_w_megs_w_stromal
+#now make a dimplot of each level and a proportion table
+image = DimPlot(obj, group.by = "obj.anno_3_w_megs_w_stromal", label = TRUE, repel = TRUE, ) +
+  NoLegend() +
+  theme(
+    axis.title = element_blank(),  # Removes axis titles
+    axis.text = element_blank(),   # Removes axis text
+    axis.ticks = element_blank(),  # Removes axis ticks
+    axis.line = element_blank(),   # Removes axis lines
+    panel.grid = element_blank()   # Removes grid lines if present
+  ) +
+  ggtitle("")
+
+print(image)
+```
+
+```{r}
+Idents(obj) = obj$obj.anno_1_w_megs
+#now make a dimplot of each level and a proportion table
+image = DimPlot(obj, group.by = "obj.anno_1_w_megs", label = TRUE, repel = TRUE, ) +
+  NoLegend() +
+  theme(
+    axis.title = element_blank(),  # Removes axis titles
+    axis.text = element_blank(),   # Removes axis text
+    axis.ticks = element_blank(),  # Removes axis ticks
+    axis.line = element_blank(),   # Removes axis lines
+    panel.grid = element_blank()   # Removes grid lines if present
+  ) +
+  ggtitle("")
+
+image
+```
+
+```{r}
+Idents(obj) = obj$obj.anno_5_w_megs
+#now make a dimplot of each level and a proportion table
+image = DimPlot(obj, group.by = "obj.anno_5_w_megs", label = TRUE, repel = TRUE, ) +
+  NoLegend() +
+  theme(
+    axis.title = element_blank(),  # Removes axis titles
+    axis.text = element_blank(),   # Removes axis text
+    axis.ticks = element_blank(),  # Removes axis ticks
+    axis.line = element_blank(),   # Removes axis lines
+    panel.grid = element_blank()   # Removes grid lines if present
+  ) +
+  ggtitle("")
+
+ggsave(file="plots/umap_anno_5.svg", plot=image, width=10, height=8)
+
+ggsave(file="plots/umap_anno_5.png", plot=image, width=10, height=8)
+```
+
+#heatmap of DEG
+
+```{r}
+x <- unique(obj$obj.anno_3_w_megs_w_stromal)
+
+#do differential expression for each cluster
+
+Idents(obj) = obj$obj.anno_3_w_megs_w_stromal
+
+pbmc.markers <- FindAllMarkers(obj, only.pos = TRUE)
+
+
+pbmc.markers %>%
+    group_by(cluster) %>%
+    dplyr::filter(avg_log2FC > 1)
+
+
+
+pbmc.markers %>%
+    group_by(cluster) %>%
+    dplyr::filter(avg_log2FC > 1) %>%
+    slice_head(n = 10) %>%
+    ungroup() -> top10
+
+p <- top10 %>%
+  mutate(cluster=factor(cluster, levels = x)) %>%
+  arrange(cluster)
+
+p
+
+p$cluster = factor(p$cluster, levels = unique(obj$obj.anno_3_w_megs_w_stromal))
+
+avgexp = AggregateExpression(obj, return.seurat = T)
+
+image = DoHeatmap(avgexp, features = p$gene, size = 2, draw.lines = FALSE) + scale_fill_gradientn(colours = c("blue", "white", "red")) 
+
+plot(image)
+```
+
+```{r}
+#featureplot
+
+image = FeaturePlot(obj, features = c("CD3D", "CD3E", "CD20", "CD79A", "CD14", "FCGR3A", "GYPA", "VWF", "PECAM1", "CD34", "CTSG", "KIT", "PDGFRA"), ncol=3) 
+plot(image)
+
+
+
+```

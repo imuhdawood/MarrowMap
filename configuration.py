@@ -32,3 +32,13 @@ class STConfig:
     pth_graphs_out_dir: Path = Path("/well/rittscher/users/qwi813/xenium_paper/outputs")
 
     pth_spatiotypes_label: Path = Path("/well/rittscher/users/qwi813/dev/XeniumPipe/xen_paper_plots/data/ENVIRON_R2_C3.csv")
+    pth_spatiotypes_feat_only: Path = Path("/well/rittscher/users/qwi813/dev/XeniumPipe/xen_paper_plots/data/ENVIRON_R2_C3_FEATS_ONLY.csv")
+    pth_spatiotypes_feat_label: Path = Path("/well/rittscher/users/qwi813/dev/XeniumPipe/xen_paper_plots/data/ENVIRON_R2_C3_FEATS_LABEL.csv")
+
+    pth_cell_annotations_final: Path = Path("/mnt/c/Xenium/data/NodeProba/CellMicroEnviron/obj_w_Cell_annotations_RC_22122024_final/obj_w_Cell_annotations_RC_22122024_final.csv")
+    pth_spatiotypes_feat_label: Path = Path("/mnt/c/Xenium/data/NodeProba/CellMicroEnviron/obj_w_Cell_annotations_RC_22122024_final_with_osteo/ENVIRON_R2_C3_WITH_FEATS.csv")
+    pth_its_poly: Path = Path("/mnt/c/Xenium/data/NodeProba/CellMicroEnviron/BandFeaturesClustersUp/ITS_Region_Poly.csv")
+    pth_its_score_file: Path = Path("/mnt/c/Xenium/data/NodeProba/CellMicroEnviron/obj_w_Cell_annotations_RC_22122024_final_with_osteo/MIL/ITS_LEVEL/ENVIRON_TWEAK/csv/itr_pred.csv")
+    pth_sample_level_score_file: Path = Path("/mnt/c/Xenium/data/NodeProba/CellMicroEnviron/obj_w_Cell_annotations_RC_22122024_final_with_osteo/MIL//ITS_LEVEL_100/ENVIRON/csv//sample_pred.csv")
+    pth_bootstrap_score_file: Path = Path("/mnt/c/Xenium/data/NodeProba/CellMicroEnviron/obj_w_Cell_annotations_RC_22122024_final_with_osteo/MIL//ITS_LEVEL_100/ENVIRON/csv//bootstraps_sample_pred.csv")
+    pth_cif_score_file: Path = Path("/mnt/c/Xenium/CIF/cif_data_cell_level_512.csv")
