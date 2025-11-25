@@ -66,7 +66,7 @@ merged_df <- df1 %>%
   tibble::column_to_rownames(var = "Index")  # Restore row names
 
 # Check the result
-print(merged_df)
+head(merged_df)
 ```
 
 ```{r}
@@ -97,7 +97,7 @@ unique(obj$obj.anno_5_w_megs)
 obj = subset(obj, subset = obj.anno_5_w_megs %!in% c("CD69"))
 ```
 
-```{r fig.height=10, fig.width=20}
+```{r}
 Idents(obj) = obj$obj.anno_3_w_megs
 #now make a dimplot of each level and a proportion table
 image = DimPlot(obj, group.by = "obj.anno_3_w_megs", label = TRUE, repel = TRUE,size=0.05) +
@@ -162,12 +162,10 @@ image = DimPlot(obj, group.by = "obj.anno_5_w_megs", label = TRUE, repel = TRUE,
   ) +
   ggtitle("")
 
-ggsave(file="plots/umap_anno_5.svg", plot=image, width=10, height=8)
-
-ggsave(file="plots/umap_anno_5.png", plot=image, width=10, height=8)
+image
 ```
 
-#heatmap of DEG
+DEG Heatmap
 
 ```{r}
 x <- unique(obj$obj.anno_3_w_megs_w_stromal)
@@ -201,17 +199,25 @@ p$cluster = factor(p$cluster, levels = unique(obj$obj.anno_3_w_megs_w_stromal))
 
 avgexp = AggregateExpression(obj, return.seurat = T)
 
+```
+
+```{r fig.width=10, fig.height=25}
+
+
 image = DoHeatmap(avgexp, features = p$gene, size = 2, draw.lines = FALSE) + scale_fill_gradientn(colours = c("blue", "white", "red")) 
 
 plot(image)
 ```
 
-```{r}
+```{r fig.width=12, fig.height=15}
 #featureplot
 
-image = FeaturePlot(obj, features = c("CD3D", "CD3E", "CD20", "CD79A", "CD14", "FCGR3A", "GYPA", "VWF", "PECAM1", "CD34", "CTSG", "KIT", "PDGFRA"), ncol=3) 
-plot(image)
-
+image <- FeaturePlot(
+  obj,
+  features = c("CD3D", "CD3E", "CD79A", "CD14", "FCGR3A", "GYPA", "VWF", "PECAM1", "CD34", "CTSG", "KIT", "PDGFRA"),
+  ncol = 3
+)
+print(image)
 
 
 ```
