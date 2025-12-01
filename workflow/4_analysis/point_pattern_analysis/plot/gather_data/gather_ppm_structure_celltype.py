@@ -24,7 +24,6 @@ mpn_list = np.unique(correspond_mpn['MPN'])
 mpn_list = mpn_list[mpn_list != 'PrePMF'] 
 
 struct_grp = ['Bone','Fat','Arteriole','Sinusoid']
-# struct_grp = ['Arteriole','Sinusoid']
 
 for g in range(0,len(struct_grp)):
     struct_name = struct_grp[g]
