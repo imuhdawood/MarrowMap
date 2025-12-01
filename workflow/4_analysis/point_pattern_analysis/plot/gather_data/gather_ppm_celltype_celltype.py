@@ -2,9 +2,9 @@ import os
 import pandas as pd
 import numpy as np
 
-xl_path = 'C:/work/work/code/xenium_pipeline/ppm_results_anno3_stromal_cell'
+xl_path = 'path/to/ppm_result/celltype_celltype'
 
-savepath = 'C:/work/work/code/xenium_pipeline/gathered_ppm_downsampled_cell_anno3_meg_stromal'
+savepath = 'path/to/celltype_celltype'
 
 if not os.path.exists(savepath):
     os.makedirs(savepath)
@@ -34,10 +34,6 @@ for cc in range(len(cell_folder_list)):
 
     for file in os.listdir('{}/{}'.format(xl_path,cell_folder_list[cc])):
         xl_list.append(file)
-    
-    x_data_cell = np.zeros((len(cell_type_list),len(xl_list)+1))
-    x_data_cell = x_data_cell.astype(object)
-    x_data_cell[:,0] = cell_type_list
     
     for mp in mpn_list:
         numb_mpn = len(np.where(np.array(correspond_mpn['MPN']) == mp)[0])
@@ -94,7 +90,6 @@ for cc in range(len(cell_folder_list)):
         for ii in range(len(cell_sort)):
             type_idx = np.where(np.array(cell_type_list) == xl_whole['name'][cell_sort[ii]])[0][0]
             cell_rank = ii/max(cell_sort)
-            x_data_cell[type_idx,i+1] = cell_rank
             
             if mpn_type == 'Normal':
                 x_data_cell_n[type_idx,cnt_n+1] = cell_rank
@@ -116,11 +111,6 @@ for cc in range(len(cell_folder_list)):
             
             
     writer = pd.ExcelWriter('{}/{}.xlsx'.format(savepath,cell_folder_list[cc]), engine="xlsxwriter")
-    
-    df_cell = pd.DataFrame(x_data_cell)
-    df_cell.columns = header
-    df_cell.set_index('Cell Type', inplace=True)
-    df_cell.to_excel(writer, sheet_name="All")
     
     df_cell_n = pd.DataFrame(x_data_cell_n)
     df_cell_n.columns = header_n
