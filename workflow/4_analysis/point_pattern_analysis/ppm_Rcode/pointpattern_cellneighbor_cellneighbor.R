@@ -4,7 +4,7 @@ library(openxlsx)
 
 savepath = "path/to/output"
 data_folder = "path/to/input_data"
-data_folder = "path/to/distance_map_cellneighbor"
+distancemap_folder = "path/to/distance_map_cellneighbor"
 the_strct_list <- list.files(data_folder)
 for (f in 1:length(the_strct_list)){
   strct_name = the_strct_list[f][1]
@@ -29,7 +29,7 @@ for (f in 1:length(the_strct_list)){
       stringsAsFactors = FALSE  # Avoids converting character vectors to factors
     )
     
-    strct_dist_map = read.csv(sprintf('%s/%s/%s.csv',strct_name,strsplit(theDatalist[ff],".xlsx")[[1]]))
+    strct_dist_map = read.csv(sprintf('%s/%s/%s.csv',distancemap_folder,strct_name,strsplit(theDatalist[ff],".xlsx")[[1]]))
     covariate_im_strct <- as.im(strct_dist_map, c(as.numeric(max(strct_dist_map$x)),as.numeric(max(strct_dist_map$y)),1,1))
     
     for (i in 1:nrow(cluster_type)){
