@@ -77,6 +77,8 @@ for g in range(0,len(struct_grp)):
         df_cell = df_cell.rename(columns={df_cell.columns[0]: 'Cell Type'})
         df_cell.set_index('Cell Type', inplace=True)
         df_cell.columns = header
+        medians_ = df_cell.iloc[:, 0:].median(axis=1)
+        df_cell['median'] = medians_
         df_cell.to_excel(writer_, sheet_name='{}'.format(mpn_list[mp]))
             
     writer_.close()
