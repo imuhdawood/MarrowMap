@@ -2,8 +2,8 @@ import os
 import pandas as pd
 import numpy as np
 
-xl_path = 'path/to/ppm_result/celltype_celltype' #From 
-savepath = 'path/to/celltype_celltype'
+xl_path = 'path/to/ppm_result/cellneighbor_cellneighbor' #From 
+savepath = 'path/to/cellneighbor_cellneighbor'
 
 if not os.path.exists(savepath):
     os.makedirs(savepath)
@@ -15,7 +15,6 @@ cluster_type_list = ['0','1','2','3','4','5','6','7','8','9']
 header_MPN = ['ID','MPN']
 
 for r in range(len(cluster_type_list)):
-    header = ['Cluster Type']
     header_n = ['Cluster Type']
     header_et = ['Cluster Type']
     header_pv = ['Cluster Type']
@@ -36,10 +35,6 @@ for r in range(len(cluster_type_list)):
     correspond_mpn.columns = header_MPN
     
     mpn_list = np.unique(correspond_mpn['MPN'])
-    
-    x_data_cluster = np.zeros((len(cluster_type_list),len(sub_xl_list)+1))
-    x_data_cluster = x_data_cluster.astype(object)
-    x_data_cluster[:,0] = cluster_type_list
 
     for mp in mpn_list:
         numb_mpn = len(np.where(np.array(correspond_mpn['MPN']) == mp)[0])
@@ -69,7 +64,6 @@ for r in range(len(cluster_type_list)):
     for i in range(len(sub_xl_list)):
         dataname = sub_xl_list[i].split('.xlsx')[0]
         mpn_type = correspond_mpn['MPN'][np.where(np.array(correspond_mpn['ID'] == dataname))[0][0]]
-        header.append('{} {}'.format(dataname,mpn_type))
         
         if mpn_type == 'Normal':
             header_n.append('{} {}'.format(dataname,mpn_type))
@@ -87,7 +81,6 @@ for r in range(len(cluster_type_list)):
         for ii in range(len(sort_)):
             type_idx = np.where(np.array(cluster_type_list) == str(xl_whole['name'][sort_[ii]]))[0][0]
             rank_ = ii/max(sort_)
-            x_data_cluster[type_idx,i+1] = rank_
             
             if mpn_type == 'Normal':
                 x_data_cluster_n[type_idx,cnt_n+1] = rank_
@@ -109,12 +102,6 @@ for r in range(len(cluster_type_list)):
     
     writer = pd.ExcelWriter('{}/cluster_{}.xlsx'.format(savepath,cluster_to_name), engine="xlsxwriter")
     
-    df_cluster = pd.DataFrame(x_data_cluster)
-    df_cluster.columns = header
-    medians_ = df_cluster.iloc[:, 1:].median(axis=1)
-    df_cluster['median'] = medians_
-    df_cluster.set_index('Cluster Type', inplace=True)
-    df_cluster.to_excel(writer, sheet_name="All")
     
     df_cluster_n = pd.DataFrame(x_data_cluster_n)
     df_cluster_n.columns = header_n
