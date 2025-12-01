@@ -2,8 +2,8 @@ import os
 import pandas as pd
 import numpy as np
 
-xl_path = 'path/to/data' #From 
-savepath = 'path/to/output'
+xl_path = 'path/to/ppm_result/celltype_celltype' #From 
+savepath = 'path/to/celltype_celltype'
 
 if not os.path.exists(savepath):
     os.makedirs(savepath)
