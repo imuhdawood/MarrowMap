@@ -17,7 +17,7 @@ with open('xenium_pipeline/celltypes.txt') as p:
 
 cell_type_list.remove('CD69')
 
-correspond_mpn = pd.read_excel('xenium_pipeline/Correspond_MPN.xlsx')
+correspond_mpn = pd.read_excel('Correspond_MPN.xlsx')
 
 mpn_list = np.unique(correspond_mpn['MPN'])
 
