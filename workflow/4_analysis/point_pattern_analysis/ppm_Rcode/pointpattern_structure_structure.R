@@ -1,8 +1,8 @@
 library(spatstat)
 library(readxl)
 library(openxlsx)
-savepath = "path/to/output"
-input_path = "path/to/input_data"
+savepath = "path/to/struct_struct"
+input_path = "path/to/metadata/struct_struct"
 distance_map_path = "path/to/distance_map_structure"
 if (!file.exists(savepath)) {
   # Directory or file does not exist, so you can create it
