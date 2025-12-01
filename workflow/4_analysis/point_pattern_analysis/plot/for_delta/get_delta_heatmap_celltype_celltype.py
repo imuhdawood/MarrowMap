@@ -113,7 +113,7 @@ for sub, df in per_subtype_tables.items():
         continue
     mat = build_cell_vs_cell_median(df)
 
-    # ✅ Sort alphabetically only for final saved output
+    # Sort alphabetically only for final saved output
     mat_sorted = mat.copy()
     mat_sorted = mat_sorted.reindex(index=sorted(mat.index, key=str.lower),
                                     columns=sorted(mat.columns, key=str.lower))
@@ -178,7 +178,7 @@ for sub in ["ET", "PV", "MF"]:
                 except Exception:
                     pass
 
-    # ✅ Sort alphabetically only when saving
+    # Sort alphabetically only when saving
     delta_sorted = delta.reindex(index=sorted(rows, key=str.lower),
                                  columns=sorted(cols, key=str.lower))
     sig_sorted = sig.reindex(index=sorted(rows, key=str.lower),
