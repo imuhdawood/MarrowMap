@@ -2,9 +2,9 @@ library(spatstat)
 library(readxl)
 library(openxlsx)
 
-datapath = "path/to/data" #From get_metadata
+datapath = "path/to/metadata/celltype_celltype"
 distmap_path = "path/to/distancemap"
-savepath = "path/to/output"
+savepath = "path/to/celltype_celltype"
 theDatalist <- list.files(datapath)
 
 for (f in 1:length(theDatalist)){
@@ -69,7 +69,7 @@ for (f in 1:length(theDatalist)){
       fit_cell <- ppm(points_ppp ~ covariate_im_cell)
       df <- rbind(df, data.frame(name = cell_type[[1]][i], distance_to_cell = fit_cell$'coef'['covariate_im_cell'][[1]]))
     }
-    write.xlsx(df, file = sprintf("%s/%s",subsavepath, theDatalist[f]))
+    write.csv(df, file = sprintf("%s/%s",subsavepath, theDatalist[f]),row.names = FALSE)
     print(sprintf('%s done',cell_type[[1]][ct]))
   }
   print(sprintf('%d out of %d : %s done',f,length(theDatalist),theDatalist[f]))
