@@ -11,3 +11,5 @@ __pycache__/
 
 test.py
 .Rproj.user/
+.RDataTmp
+.Rhistory
