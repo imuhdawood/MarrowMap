@@ -4,13 +4,17 @@ import numpy as np
 import statistics
 import random
 from scipy.stats import combine_pvalues
+import pdb
 
-main_data = 'path/to/output'
+main_data = '../metadata'
 
-main_savepth = 'distance_permutation'
+main_savepth = '../distance_permutation'
 
-compare_type = ['struct_struct', 'struct_celltype', 'struct_cellneighbor',
-                'celltype_celltype','cellneighbor_cellneighbor']
+# compare_type = ['struct_struct', 'struct_celltype', 'struct_cellneighbor',
+#                 'celltype_celltype','cellneighbor_cellneighbor']
+
+compare_type = ['cellneighbor_cellneighbor']
+
 
 for comptype in compare_type:
     if comptype == 'struct_struct':
@@ -18,7 +22,7 @@ for comptype in compare_type:
         
         save_folder = '{}/{}'.format(main_savepth,comptype)
         
-        xl_path = '{}/{}'.format(main_data,comptype)
+        xl_path = '{}/distance_strct_strct'.format(main_data)
         
         xl_list = []
         xl_name_list = []
@@ -29,7 +33,7 @@ for comptype in compare_type:
                 xl_name_list.append(file.split('.')[0])
 
 
-        with open('Correspond_MPN.txt') as p:
+        with open('../Correspond_MPN.txt') as p:
             strings_p = p.readlines()
             ID_list_temp = [string.split()[0] for string in strings_p]
             MPN_type_list_temp = [string.split()[1] for string in strings_p]
@@ -44,7 +48,9 @@ for comptype in compare_type:
                 MPN_type_list.append(MPN_type_list_temp[i])
 
         MPN_subs = np.unique(MPN_type_list)
-
+        
+        # pdb.set_trace()
+        
         #################################################################
         # For each MPN subtypes
         for s in range(len(structure)):
@@ -123,7 +129,7 @@ for comptype in compare_type:
                 df = pd.DataFrame(p_stouff)
                 df.columns = ['Structure From','P Value']
                 df['Structure To'] = np.full((len(df),1),structure[s])
-                df.to_csv('{}/pvalue.xlsx'.format(subsavepath),index=False)
+                df.to_csv('{}/pvalue.csv'.format(subsavepath),index=False)
                 
     elif comptype == 'struct_celltype':
         structure = ['Bone','Fat','Arteriole','Sinusoid']
@@ -137,14 +143,14 @@ for comptype in compare_type:
         for file in os.listdir(xl_path):
             xl_list.append(file)
 
-        with open('celltypes.txt') as p:
+        with open('../celltypes.txt') as p:
             strings_p = p.readlines()
             cell_type_list = [string.split()[0] for string in strings_p]
             p.close()
 
         cell_type_list.remove('CD69')
 
-        with open('Correspond_MPN.txt') as p:
+        with open('../Correspond_MPN.txt') as p:
             strings_p = p.readlines()
             ID_list = [string.split()[0] for string in strings_p]
             MPN_type_list = [string.split()[1] for string in strings_p]
@@ -157,18 +163,29 @@ for comptype in compare_type:
                 
                 subsavepath = '{}/{}/{}'.format(save_folder,structure[s],MPN_subs[i])
                 
+                if os.path.exists('{}/pvalue.csv'.format(subsavepath)):
+                    continue
+                
                 if not os.path.exists(subsavepath):
                     os.makedirs(subsavepath)
                 
                 mpn_idx = np.where(np.array(MPN_type_list) == MPN_subs[i])[0]
                 
-            
+                # pdb.set_trace()
+                
+                pvalue = np.zeros((len(cell_type_list),len(mpn_idx)+1))
+                pvalue = pvalue.astype(object)
+                pvalue[:,0] = cell_type_list
+                
                 for ii in range(len(mpn_idx)):
                     
                     try:
                         x_data = pd.read_excel('{}/{}.xlsx'.format(xl_path,ID_list[mpn_idx[ii]]))
                     except:
                         x_data = pd.read_csv('{}/{}.csv'.format(xl_path,ID_list[mpn_idx[ii]]))
+                    
+                    if x_data['Distance to {}'.format(structure[s])].isna().all():
+                        continue
                     
                     x_data_orig = np.zeros((len(cell_type_list),2))
                     x_data_orig = x_data_orig.astype(object)
@@ -189,7 +206,7 @@ for comptype in compare_type:
                         random.shuffle(type_temp)
                         for iiii in range(len(cell_type_list)):
                             type_idx = np.where(type_temp == cell_type_list[iiii])[0]
-                            bone_dist_grp = np.array(x_data['Distance to Bone'])[type_idx]
+                            bone_dist_grp = np.array(x_data['Distance to {}'.format(structure[s])])[type_idx]
                             med_dist_bone = statistics.median(bone_dist_grp)
                             x_data_permut[iiii,iii+1] = med_dist_bone
                     
@@ -198,6 +215,10 @@ for comptype in compare_type:
                         pvalue[iii,ii+1] = p_
                     
                     print('{}: {} out of {} permutation has been done'.format(MPN_subs[i], ii+1,len(mpn_idx)))
+                
+                mask = np.any(pvalue != 0.0, axis=0)
+                
+                pvalue = pvalue[:, mask]
                 
                 p_stouff = np.zeros((len(cell_type_list),2))
                 p_stouff = p_stouff.astype(object)
@@ -210,7 +231,8 @@ for comptype in compare_type:
                     p_stouff[ii,1] = stouffer_p
                     
                 df = pd.DataFrame(p_stouff)
-                df.to_csv('{}/pvalue.csv'.format(subsavepath))
+                df.columns = ['From','P Value']
+                df.to_csv('{}/pvalue.csv'.format(subsavepath),index=False)
                 
     elif comptype == 'struct_cellneighbor':
         
@@ -220,10 +242,10 @@ for comptype in compare_type:
         structure = ['Bone','Fat','Arteriole','Sinusoid']
         cluster_type_list = ['0','1','2','3','4','5','6','7','8','9']
         
-        with open('Correspond_MPN.txt') as p:
+        with open('../Correspond_MPN.txt') as p:
             strings_p = p.readlines()
-            ID_list_orig = [string.split()[0] for string in strings_p]
-            MPN_type_list_orig = [string.split()[1] for string in strings_p]
+            ID_list = [string.split()[0] for string in strings_p]
+            MPN_type_list = [string.split()[1] for string in strings_p]
             p.close()
         
         xl_path = '{}/{}'.format(main_data,comptype)
@@ -234,29 +256,25 @@ for comptype in compare_type:
             xl_list.append(file)
         
         for s in range(len(structure)):
-            ID_list = []
-            MPN_type_list = []
             
-            for xx in range(len(ID_list_orig)):
-                
-                try:
-                    if '{}.xlsx'.format(ID_list_orig[xx]) in xl_list:
-                        ID_list.append(ID_list_orig[xx])
-                        MPN_type_list.append(MPN_type_list_orig[xx])
-                except:
-                    if '{}.csv'.format(ID_list_orig[xx]) in xl_list:
-                        ID_list.append(ID_list_orig[xx])
-                        MPN_type_list.append(MPN_type_list_orig[xx])
-                        
             MPN_subs = np.unique(MPN_type_list)
+            
             
             for i in range(len(MPN_subs)):
                 subsavepath = '{}/{}/{}'.format(save_folder,structure[s],MPN_subs[i])
+                
+                if os.path.exists('{}/pvalue.csv'.format(subsavepath)):
+                    continue
                 
                 if not os.path.exists(subsavepath):
                     os.makedirs(subsavepath)
                 
                 mpn_idx = np.where(np.array(MPN_type_list) == MPN_subs[i])[0]
+                
+                pvalue = np.zeros((len(cluster_type_list),len(mpn_idx)+1))
+                pvalue = pvalue.astype(object)
+                pvalue[:,0] = cluster_type_list
+                
                 
                 pvalue = np.zeros((len(cluster_type_list),len(mpn_idx)+1))
                 pvalue = pvalue.astype(object)
@@ -276,9 +294,12 @@ for comptype in compare_type:
                     x_data_permut[:,0] = cluster_type_list
                     
                     try:
-                        x_data = pd.read_excel('{}/{}/{}.xlsx'.format(xl_path,structure[s],ID_list[mpn_idx[ii]]))
+                        x_data = pd.read_excel('{}/{}.xlsx'.format(xl_path,ID_list[mpn_idx[ii]]))
                     except:
-                        x_data = pd.read_csv('{}/{}/{}.csv'.format(xl_path,structure[s],ID_list[mpn_idx[ii]]))
+                        x_data = pd.read_csv('{}/{}.csv'.format(xl_path,ID_list[mpn_idx[ii]]))
+                    
+                    if x_data['Distance to {}'.format(structure[s])].isna().all():
+                        continue
                     
                     dataname = ID_list[mpn_idx[ii]].split('.xlsx')[0]
                     
@@ -304,7 +325,11 @@ for comptype in compare_type:
                         pvalue[iii,ii+1] = p_
                     
                     print('{} - {}: {} out of {} permutation has been done'.format(structure[s],MPN_subs[i], ii+1,len(mpn_idx)))
-                    
+                
+                mask = np.any(pvalue != 0.0, axis=0)
+                
+                pvalue = pvalue[:, mask]
+                
                 p_stouff = np.zeros((len(cluster_type_list),2))
                 p_stouff = p_stouff.astype(object)
                 p_stouff[:,0] = cluster_type_list
@@ -317,7 +342,8 @@ for comptype in compare_type:
                     
             
                 df = pd.DataFrame(p_stouff)
-                df.to_csv('{}/pvalue.csv'.format(subsavepath))
+                df.columns = ['From','P Value']
+                df.to_csv('{}/pvalue.csv'.format(subsavepath),index=False)
         
     elif comptype == 'celltype_celltype':
         
@@ -330,14 +356,14 @@ for comptype in compare_type:
         for file in os.listdir(xl_path):
             xl_list.append(file)
 
-        with open('celltypes.txt') as p:
+        with open('../celltypes.txt') as p:
             strings_p = p.readlines()
             cell_type_list = [string.split()[0] for string in strings_p]
             p.close()
 
         cell_type_list.remove('CD69')
 
-        with open('Correspond_MPN.txt') as p:
+        with open('../Correspond_MPN.txt') as p:
             strings_p = p.readlines()
             ID_list = [string.split()[0] for string in strings_p]
             MPN_type_list = [string.split()[1] for string in strings_p]
@@ -412,16 +438,17 @@ for comptype in compare_type:
                     p_stouff[ii,1] = stouffer_p
                     
                 df = pd.DataFrame(p_stouff)
-                df.to_csv('{}/pvalue.csv'.format(subsavepath))
+                df.columns = ['From','P Value']
+                df.to_csv('{}/pvalue.csv'.format(subsavepath),index=False)
                 
     elif comptype == 'cellneighbor_cellneighbor':
         
         save_folder = '{}/{}'.format(main_savepth,comptype)
         
-        with open('Correspond_MPN.txt') as p:
+        with open('../Correspond_MPN.txt') as p:
             strings_p = p.readlines()
-            ID_list_orig = [string.split()[0] for string in strings_p]
-            MPN_type_list_orig = [string.split()[1] for string in strings_p]
+            ID_list = [string.split()[0] for string in strings_p]
+            MPN_type_list = [string.split()[1] for string in strings_p]
             p.close()
         
         xl_path = '{}/{}'.format(main_data,comptype)
@@ -438,14 +465,7 @@ for comptype in compare_type:
             sub_xlpath = '{}/{}'.format(xl_path,cluster_name)
             xl_list = os.listdir(sub_xlpath)
             
-            ID_list = []
-            MPN_type_list = []
             
-            for xx in range(len(ID_list_orig)):
-                if '{}.xlsx'.format(ID_list_orig[xx]) in xl_list:
-                    ID_list.append(ID_list_orig[xx])
-                    MPN_type_list.append(MPN_type_list_orig[xx])
-                    
             MPN_subs = np.unique(MPN_type_list)
             
             for i in range(len(MPN_subs)):
@@ -515,4 +535,5 @@ for comptype in compare_type:
                     
                 
                 df = pd.DataFrame(p_stouff)
-                df.to_csv('{}/pvalue.xlsx'.format(subsavepath))
+                df.columns = ['From','P Value']
+                df.to_csv('{}/pvalue.csv'.format(subsavepath),index=False)
