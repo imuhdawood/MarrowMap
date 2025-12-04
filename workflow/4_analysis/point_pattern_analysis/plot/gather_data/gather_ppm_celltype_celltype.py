@@ -114,21 +114,29 @@ for cc in range(len(cell_folder_list)):
     
     df_cell_n = pd.DataFrame(x_data_cell_n)
     df_cell_n.columns = header_n
+    medians_n = df_cell_n.iloc[:, 1:].median(axis=1)
+    df_cell_n['median'] = medians_n
     df_cell_n.set_index('Cell Type', inplace=True)
     df_cell_n.to_excel(writer, sheet_name="Normal")
     
     df_cell_et = pd.DataFrame(x_data_cell_et)
     df_cell_et.columns = header_et
+    medians_et = df_cell_et.iloc[:, 1:].median(axis=1)
+    df_cell_et['median'] = medians_et
     df_cell_et.set_index('Cell Type', inplace=True)
     df_cell_et.to_excel(writer, sheet_name="ET")
     
     df_cell_pv = pd.DataFrame(x_data_cell_pv)
     df_cell_pv.columns = header_pv
+    medians_pv = df_cell_pv.iloc[:, 1:].median(axis=1)
+    df_cell_pv['median'] = medians_pv
     df_cell_pv.set_index('Cell Type', inplace=True)
     df_cell_pv.to_excel(writer, sheet_name="PV")
     
     df_cell_mf = pd.DataFrame(x_data_cell_mf)
     df_cell_mf.columns = header_mf
+    medians_mf = df_cell_mf.iloc[:, 1:].median(axis=1)
+    df_cell_mf['median'] = medians_mf
     df_cell_mf.set_index('Cell Type', inplace=True)
     df_cell_mf.to_excel(writer, sheet_name="MF")
     
