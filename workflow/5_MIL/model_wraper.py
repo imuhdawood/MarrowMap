@@ -41,7 +41,7 @@ def train(model, loader_pos, loader_neg, device, optimizer, epochs=100, top_k=6,
                 # i.e. the i-th highest instance in the positive bag is paired with
                 # the i-th highest instance in the negative bag.
                 # The loss for each pair is: max(0, n_top[i] - p_top[i] + margin)
-                losses = torch.clamp(n_top - p_top + margin, min=2)
+                losses = torch.clamp(n_top - p_top + margin, min=0)
                 loss_value = losses.sum()  # or losses.mean() if you prefer averaging
                 
                 # Optionally add L1 regularization (applied on weights only)
