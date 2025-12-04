@@ -6,8 +6,8 @@ import geopandas as gpd
 import shapely
 from shapely.geometry import box
 
-data_folder = '../Xenium_data'
-main_savepth = '../results/xenium_github/metadata'
+data_folder = 'path/to/main_data'
+main_savepth = 'path/to/metadata'
 
 compare_type = ['struct_struct', 'struct_celltype', 'struct_cellneighbor',
                 'celltype_celltype','cellneighbor_cellneighbor']
