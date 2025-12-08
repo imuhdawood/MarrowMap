@@ -24,7 +24,7 @@ Run the following notebooks
 #### Step 3: Cell annotation
 Run the R scripts in the folder `/workflow/3_cell_annotation`. Details about script order is provided in the help file inside the folder.
 
-#### Step 3: Analyses
+#### Step 4: Analyses
 
 ##### Identifying cell neighbourhgood
 - Construct graph representation by running the following script:
