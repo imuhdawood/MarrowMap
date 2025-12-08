@@ -77,7 +77,8 @@ Run the following notebooks
 /workflow/4_analysis/spatial_analysis/visualize_niches.ipynb
 /workflow/4_analysis/spatial_analysis/interactions_rank.py
 ````
-
+##### CIF analysis
+Run the following scripts
 ##### Spatiotypes Analysis
 The spatiotypes analysis was done using band descriptor.
 Run the following scripts in order
