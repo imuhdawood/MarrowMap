@@ -26,7 +26,7 @@ Run the R scripts in the folder `/workflow/3_cell_annotation`. Details about scr
 
 #### Step 4: Analyses
 
-##### Identifying cell neighbourhgood
+##### Identifying cell neighbourhood
 - Construct graph representation by running the following script:
 ````python
 workflow/4_analysis/cell_charter/graph_construction.py
