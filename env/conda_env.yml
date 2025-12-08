@@ -1,6 +1,4 @@
-#note from MG: made modifications to correct for version conflicts and related errors. original env found at: /well/rittscher/users/qdv200/MPN/xenium/xen_env_environment.yml 
-#last updated by MG: 13 october 2025
-name: xenium_env2
+name: conda_env
 channels:
   - conda-forge
   - bioconda
