@@ -78,7 +78,17 @@ Run the following notebooks
 /workflow/4_analysis/spatial_analysis/interactions_rank.py
 ````
 ##### CIF analysis
-Run the following scripts
+There are two analysis: CIF versus Distance to Bone & CIF vs Cell Abundance
+Run the following scripts for CIF versus Distance to Bone
+````python
+/workflow/4_analysis/CIF_analysis/Distance_bone/get_data/get_data_cif_distancebone.py
+/workflow/4_analysis/CIF_analysis/Distance_bone/get_CIF_distancebone.py
+````
+Run the following scripts for CIF versus Cell Abundance
+````python
+/workflow/4_analysis/CIF_analysis/Cell_abundance/get_data/get_data_cif_cellabundance.py
+/workflow/4_analysis/CIF_analysis/Cell_abundance/get_CIF_cellabundance.py
+````
 ##### Spatiotypes Analysis
 The spatiotypes analysis was done using band descriptor.
 Run the following scripts in order
