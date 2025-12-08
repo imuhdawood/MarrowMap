@@ -43,8 +43,34 @@ Run the following notebooks
 ````
 
 ##### Spatial Analysis (Point Pattern)
-Run the script inside the distance map folder to compute distance matrix and then for each structure to other structure run the corresponding script. 
-
+Point pattern analysis is done based on the location of corresponding cell/structure and the distance map of the targets. As an example, we will do celltype-celltype analysis.
+Run the following scripts for metadata and distance map
+````python
+/workflow/4_analysis/point_pattern_analysis/get_metadata/get_metadata.py
+/workflow/4_analysis/point_pattern_analysis/distance_map/get_distancemap_celltype.py # change the python code depending on which distance map required
+````
+For structure-structure analysis, we need to compute boundary of structure instead of centre because the size of the structure is much larger compared to the cell.
+Run the following script to get the boundary points of the corresponding structure
+````python
+/workflow/4_analysis/point_pattern_analysis/structure_boundary/get_structure_boundary_pts.py
+````
+Run the following R script to get point pattern proximity 
+````
+workflow/4_analysis/point_pattern_analysis/ppm_Rcode/ppm_celltype_celltype.R # change the R code depending on which analysis you want to compute
+````
+To plot proximity heatmap we need to gather the corresponding proximity results from R code, compute permutation for p-value, and then plot.
+Run following python scripts in order
+````python
+/workflow/4_analysis/point_pattern_analysis/plot/gather_data/gather_ppm_celltype_celltype.py # change the python code depending on which ppm data you want to gather
+# For structure-strucuter make sure run /workflow/4_analysis/point_pattern_analysis/plot/for_permutation first.
+/workflow/4_analysis/point_pattern_analysis/plot/for_permutation/get_permutation_pvalue.py
+# Note: after computing permutation, create excel (xlsx) file and input the median (from gather_data codes) with the header 'Proximity Rank' and permutation result (from get_permutation_pvalue.py) with the header 'P-Value'.
+/workflow/4_analysis/point_pattern_analysis/plot/proximity_heatmap/get_proximity_heatmap.py
+````
+Run the following python script to do delta analysis with the corresponding heatmap
+````python
+/workflow/4_analysis/point_pattern_analysis/plot/for_delta/get_delta.py
+````
 ##### Visualization of niches
 Run the following notebooks
  ````python
