@@ -56,7 +56,7 @@ Run the following script to get the boundary points of the corresponding structu
 ````
 Run the following R script to get point pattern proximity 
 ````
-workflow/4_analysis/point_pattern_analysis/ppm_Rcode/ppm_celltype_celltype.R # change the R code depending on which analysis you want to compute
+/workflow/4_analysis/point_pattern_analysis/ppm_Rcode/ppm_celltype_celltype.R # change the R code depending on which analysis you want to compute
 ````
 To plot proximity heatmap we need to gather the corresponding proximity results from R code, compute permutation for p-value, and then plot.
 Run following python scripts in order
