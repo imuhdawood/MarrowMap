@@ -62,7 +62,7 @@ To plot proximity heatmap we need to gather the corresponding proximity results 
 Run following python scripts in order
 ````python
 /workflow/4_analysis/point_pattern_analysis/plot/gather_data/gather_ppm_celltype_celltype.py # change the python code depending on which ppm data you want to gather
-# For structure-strucuter make sure run /workflow/4_analysis/point_pattern_analysis/plot/for_permutation first before computing permutation.
+# For structure-strucuter make sure run /workflow/4_analysis/point_pattern_analysis/plot/for_permutation/gather_structure_dist_persample.py first before computing permutation.
 /workflow/4_analysis/point_pattern_analysis/plot/for_permutation/get_permutation_pvalue.py
 # Note: after computing permutation, create excel (xlsx) file and input the median (from gather_data codes) with the header 'Proximity Rank' and permutation result (from get_permutation_pvalue.py) with the header 'P-Value'.
 /workflow/4_analysis/point_pattern_analysis/plot/proximity_heatmap/get_proximity_heatmap.py
