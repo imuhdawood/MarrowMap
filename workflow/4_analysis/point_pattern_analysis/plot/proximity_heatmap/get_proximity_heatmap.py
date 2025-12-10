@@ -152,10 +152,10 @@ for comptype in compare_type:
         xl_path = '{}/{}'.format(main_data,comptype)
         
         for m in range(len(mpn_grp)):
-            prox_art = pd.read_excel('{}/Prox_arteriole.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
+            prox_art = pd.read_excel('{}/Prox_Arteriole.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
             prox_bone = pd.read_excel('{}/Prox_Bone.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
             prox_fat = pd.read_excel('{}/Prox_Fat.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
-            prox_sinu = pd.read_excel('{}/Prox_Sinusoid_filtered.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
+            prox_sinu = pd.read_excel('{}/Prox_Sinusoid.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
             
             from_array_art = np.array(prox_art['Cell Type'])
             from_array_art = from_array_art.reshape((len(from_array_art),1))
@@ -228,8 +228,7 @@ for comptype in compare_type:
             cmap="coolwarm",
             row_cluster=True,
             col_cluster=False,       # disable column clustering
-            vmin=0, vmax=1
-                            )
+            vmin=0, vmax=1)
             
             # build p_strct (unchanged logic, using the reordered pivoted_df.columns)
             strct_numbers = len(np.unique(np.array(p_df['Structure'])))
@@ -276,12 +275,10 @@ for comptype in compare_type:
         xl_path = '{}/{}'.format(main_data,comptype)
         
         for m in range(len(mpn_grp)):
-            prox_art = pd.read_excel('{}/Prox_arteriole.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
+            prox_art = pd.read_excel('{}/Prox_arteriole_filtered.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
             prox_bone = pd.read_excel('{}/Prox_Bone.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
             prox_fat = pd.read_excel('{}/Prox_Fat.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
             prox_sinu = pd.read_excel('{}/Prox_Sinusoid_filtered.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
-            
-            # pdb.set_trace()
             
             from_array_art = np.array(prox_art['Cluster Type'])
             from_array_art = from_array_art.reshape((len(from_array_art),1))
@@ -296,8 +293,6 @@ for comptype in compare_type:
                                          from_array_fat,from_array_sinu))
             
             numb_cell = np.unique(from_array)
-            
-            # pdb.set_trace()
             
             prox_array_art = np.array(prox_art['Proximity Rank'])
             prox_array_art = 1-prox_array_art
@@ -350,15 +345,13 @@ for comptype in compare_type:
             order = ["Bone", "Fat", "Arteriole", "Sinusoid"]
             pivoted_df = pivoted_df[order]
             plt.figure(figsize=(30,30))
-            # map_ = sns.clustermap(pivoted_df, cmap="coolwarm",row_cluster=True,col_cluster=True,vmin=0, vmax=1)
             
             map_ = sns.clustermap(
             pivoted_df[order],       # reorder columns manually
             cmap="coolwarm",
             row_cluster=True,
             col_cluster=False,       # disable column clustering
-            vmin=0, vmax=1
-        )
+            vmin=0, vmax=1)
             
             # build p_strct (unchanged logic, using the reordered pivoted_df.columns)
             strct_numbers = len(np.unique(np.array(p_df['Structure'])))
@@ -403,16 +396,53 @@ for comptype in compare_type:
         if not os.path.exists(save_folder):
             os.makedirs(save_folder)
         
+        cell_type_list = []
+        
         xl_path = '{}/{}'.format(main_data,comptype)
         
+        for c in os.listdir(xl_path):
+            cell_type_list.append(c.split('.')[0])
+        
+        # import pdb
+        # pdb.set_trace()
+        
         for m in range(len(mpn_grp)):
-            df = pd.read_excel(xl_path,mpn_grp[m])
-            df['Rank'] = 1-df['Rank']
+            for i in range(len(cell_type_list)):
+                prox_ = pd.read_excel('{}/{}.xlsx'.format(xl_path,cell_type_list[i]),'{}'.format(mpn_grp[m]))
+                from_array_temp = np.array(prox_['Cell From'])
+                from_array_temp = from_array_temp.reshape((len(from_array_temp),1))
+                prox_array_temp = 1 - np.array(prox_['Proximity Rank'])
+                prox_array_temp = prox_array_temp.reshape((len(prox_array_temp),1))
+                p_temp = np.array(prox_['P-Value'])
+                p_temp = p_temp.reshape((len(p_temp),1))
+                to_array_temp = np.full((len(from_array_temp),1),'{}'.format(cell_type_list[i]))
+                
+                if i == 0:
+                    from_array = from_array_temp
+                    prox_array = prox_array_temp
+                    p_ = p_temp
+                    to_array = to_array_temp
+                else:
+                    from_array = np.concatenate((from_array,from_array_temp))
+                    prox_array = np.concatenate((prox_array,prox_array_temp))
+                    p_ = np.concatenate((p_,p_temp))
+                    to_array = np.concatenate((to_array,to_array_temp))
+                
+            df = np.concatenate((from_array,prox_array,to_array),axis=1)
+            df = pd.DataFrame(df)
+            df.columns = ['Cell Type From', 'Proximity Rank', 'Cell Type To']
+            df['Proximity Rank'] = df['Proximity Rank'].astype(float)
             
-            pivoted_df = df.pivot(index="Cell Type From", columns="Cell Type To", values="Rank")
-
+            p_df = np.concatenate((from_array,p_,to_array),axis=1)
+            p_df = pd.DataFrame(p_df)
+            p_df.columns = ['Cell Type From','P Value','Cell Type To']
+            p_df['P Value'] = p_df['P Value'].astype(float)
+            pivoted_df = df.pivot(index="Cell Type From", columns="Cell Type To", values="Proximity Rank")
+            
             plt.figure(figsize=(30,30))
             map_ = sns.clustermap(pivoted_df, cmap="coolwarm",row_cluster=want_row_cluster,col_cluster=want_col_cluster)
+
+            map_.ax_heatmap.set_aspect("equal")            
 
             cell_numbers = len(np.unique(np.array(df['Cell Type To'])))
 
@@ -420,7 +450,7 @@ for comptype in compare_type:
             p_cell = p_cell.astype(float)
 
             for i in range(len(pivoted_df.columns)):
-                # pdb.set_trace()
+
                 if pivoted_df.columns[i] != 'Granulocyte/mast':
                     cell_to_idx = np.where(df['Cell Type To'] == pivoted_df.columns[i])[0]
                 else:
@@ -428,7 +458,7 @@ for comptype in compare_type:
                     
                 for ii in range(len(cell_to_idx)):
                     cell_from_idx = np.where(pivoted_df.index == df['Cell Type From'][cell_to_idx[ii]])[0][0]
-                    p_cell[cell_from_idx,i] = df['P Value'][cell_to_idx[ii]]
+                    p_cell[cell_from_idx,i] = p_df['P Value'][cell_to_idx[ii]]
 
             if want_row_cluster == True:
                 for i, ix in enumerate(map_.dendrogram_col.reordered_ind):
@@ -440,8 +470,7 @@ for comptype in compare_type:
                                     "*" if p_cell[jx, ix] < 0.05 else "",
                                     ha="center",
                                     va="center",
-                                    color="black",
-                                                            )
+                                    color="black")
                         else:
                             text = map_.ax_heatmap.text(
                                     i + 0.5,
@@ -449,8 +478,7 @@ for comptype in compare_type:
                                     "",
                                     ha="center",
                                     va="center",
-                                    color="black",
-                                                            )
+                                    color="black")
                         text.set_fontsize(20)
 
             else:
@@ -465,8 +493,7 @@ for comptype in compare_type:
                                 "*" if p_cell[ii, i] < 0.05 else "",
                                 ha="center",
                                 va="center",
-                                color="black",
-                                                        )
+                                color="black")
                         text.set_fontsize(20)
 
             plt.savefig("{}/{}.png".format(save_folder,mpn_grp[m]))
@@ -510,8 +537,6 @@ for comptype in compare_type:
             df.columns = ['Cluster Type From', 'Proximity Rank', 'Cluster Type To']
             df['Proximity Rank'] = df['Proximity Rank'].astype(float)
             
-            # pdb.set_trace()
-            
             p_df = np.concatenate((from_array,p_,to_array),axis=1)
             p_df = pd.DataFrame(p_df)
             p_df.columns = ['Cluster Type From','P Value','Cluster Type To']
@@ -547,8 +572,7 @@ for comptype in compare_type:
                                     "*" if p_strct[jx, ix] < 0.05 else "",
                                     ha="center",
                                     va="center",
-                                    color="black",
-                                                            )
+                                    color="black")
                         else:
                             text = map_.ax_heatmap.text(
                                     i + 0.5,
@@ -556,13 +580,9 @@ for comptype in compare_type:
                                     "",
                                     ha="center",
                                     va="center",
-                                    color="black",
-                                    )
+                                    color="black")
                         
                         text.set_fontsize(20)
-                
-                plt.savefig("{}/{}.png".format(save_folder,mpn_grp[m]))
-                plt.close()
             
             else:
                 x_ = map_.ax_heatmap.get_xticks()
@@ -579,8 +599,7 @@ for comptype in compare_type:
                                     "*" if p_strct[ii, i] < 0.05 else "",
                                     ha="center",
                                     va="center",
-                                    color="black",
-                                                            )
+                                    color="black")
                             
                             text.set_fontsize(20)
                         else:
@@ -590,11 +609,10 @@ for comptype in compare_type:
                                     "",
                                     ha="center",
                                     va="center",
-                                    color="black",
-                                    )
+                                    color="black")
                         
                             text.set_fontsize(20)
             
-                plt.savefig("{}/{}_nocluster.png".format(save_folder,mpn_grp[m]))
+                plt.savefig("{}/{}.png".format(save_folder,mpn_grp[m]))
                 plt.close()
         
