@@ -26,18 +26,18 @@ for comptype in compare_type:
         xl_path = '{}/{}'.format(main_data,comptype)
         
         for m in range(len(mpn_grp)):
-            prox_art = pd.read_excel('{}/Prox_arteriole.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
+            prox_art = pd.read_excel('{}/Prox_Arteriole.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
             prox_bone = pd.read_excel('{}/Prox_Bone.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
             prox_fat = pd.read_excel('{}/Prox_Fat.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
-            prox_sinu = pd.read_excel('{}/Prox_Sinusoid_filtered.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
+            prox_sinu = pd.read_excel('{}/Prox_Sinusoid.xlsx'.format(xl_path),'{}'.format(mpn_grp[m]))
             
-            from_array_art = np.array(prox_art['Cell Type'])
+            from_array_art = np.array(prox_art['From'])
             from_array_art = from_array_art.reshape((len(from_array_art),1))
-            from_array_bone= np.array(prox_bone['Cell Type'])
+            from_array_bone= np.array(prox_bone['From'])
             from_array_bone = from_array_bone.reshape((len(from_array_bone),1))
-            from_array_fat = np.array(prox_fat['Cell Type'])
+            from_array_fat = np.array(prox_fat['From'])
             from_array_fat = from_array_fat.reshape((len(from_array_fat),1))
-            from_array_sinu = np.array(prox_sinu['Cell Type'])
+            from_array_sinu = np.array(prox_sinu['From'])
             from_array_sinu = from_array_sinu.reshape((len(from_array_sinu),1))
             
             from_array = np.concatenate((from_array_art,from_array_bone,
@@ -83,15 +83,15 @@ for comptype in compare_type:
             
             df = np.concatenate((from_array,prox_array,to_array),axis=1)
             df = pd.DataFrame(df)
-            df.columns = ['Cell Type', 'Proximity Rank', 'Structure']
+            df.columns = ['From', 'Proximity Rank', 'Structure']
             df['Proximity Rank'] = df['Proximity Rank'].astype(float)
             
             p_df = np.concatenate((from_array,p_,to_array),axis=1)
             p_df = pd.DataFrame(p_df)
-            p_df.columns = ['Cell Type','P Value','Structure']
+            p_df.columns = ['From','P Value','Structure']
             p_df['P Value'] = p_df['P Value'].astype(float)
             
-            pivoted_df = df.pivot(index="Cell Type", columns="Structure", values="Proximity Rank")
+            pivoted_df = df.pivot(index="From", columns="Structure", values="Proximity Rank")
             
             order = ["Bone", "Fat", "Arteriole", "Sinusoid"]
             pivoted_df = pivoted_df[order]
@@ -101,9 +101,10 @@ for comptype in compare_type:
             pivoted_df[order],       # reorder columns manually
             cmap="coolwarm",
             row_cluster=True,
-            col_cluster=False,       # disable column clustering
-            vmin=0, vmax=1
-        )
+            col_cluster=True,       # disable column clustering
+            vmin=0, vmax=1)
+            
+            map_.ax_heatmap.set_aspect("equal")   
             
             # build p_strct (unchanged logic, using the reordered pivoted_df.columns)
             strct_numbers = len(np.unique(np.array(p_df['Structure'])))
@@ -112,7 +113,7 @@ for comptype in compare_type:
             for i in range(len(pivoted_df.columns)):
                 strct_to_idx = np.where(p_df['Structure'] == pivoted_df.columns[i])[0]
                 for ii in range(len(strct_to_idx)):
-                    strct_from_idx = np.where(pivoted_df.index == p_df['Cell Type'][strct_to_idx[ii]])[0][0]
+                    strct_from_idx = np.where(pivoted_df.index == p_df['From'][strct_to_idx[ii]])[0][0]
                     p_strct[strct_from_idx, i] = p_df['P Value'][strct_to_idx[ii]]
             
             # Determine column ordering index array robustly:
