@@ -77,7 +77,7 @@ Run the following notebooks
 /workflow/4_analysis/spatial_analysis/visualize_niches.ipynb
 /workflow/4_analysis/spatial_analysis/interactions_rank.py
 ````
-##### CIF analysis
+##### Fibrosis Analysis (CIF)
 There are two analysis: CIF versus Distance to Bone & CIF vs Cell Abundance
 Run the following scripts for CIF versus Distance to Bone
 ````python
