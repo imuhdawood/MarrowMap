@@ -126,4 +126,4 @@ The source code in this repo is released under the MIT-CC-Non-Commercial license
 
 ---
 
-For more information, please refer to the [preprint]().
+For more information, please refer to the [preprint](https://www.biorxiv.org/content/10.64898/2025.12.22.694222v1).
