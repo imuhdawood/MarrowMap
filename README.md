@@ -118,7 +118,16 @@ For visualizing intra- and inter- samples hetrogenity using Circos plot
 
 If you use this repository, please cite our preprint:
 
-> [Redefining the topology of the human bone marrow using augmented spatial transcriptomic analysis]()
+```bibtex
+@article{Cooper2025BoneMarrowTopology,
+  title   = {Redefining the topology of the human bone marrow using augmented spatial transcriptomic analysis},
+  author  = {Cooper, Rosalin A. and Thomas, Emily and Dawood, Muhammad and Ryou, Hosuk and Sozanska, Anna and Pescia, Carlo and McCallion, Oliver and Gupta, Muskaan and Teague, Renuka and Hester, Joanna and Issa, Fadi and Woodcock, Dan J. and Psaila, Bethan and Mead, Adam and Rittscher, Jens and Royston, Daniel},
+  journal = {bioRxiv},
+  year    = {2025},
+  note    = {Preprint},
+  url     = {https://www.biorxiv.org/content/10.64898/2025.12.22.694222v1}
+}
+```
 
 ## License
 
